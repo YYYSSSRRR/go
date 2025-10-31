@@ -1,0 +1,36 @@
+name: Go Middleware Test CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test:
+    name: Run Middleware Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ 设置 Go 环境
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'   # 你本地使用的 Go 版本
+
+      # 3️⃣ 下载依赖
+      - name: Download dependencies
+        run: go mod tidy
+
+      # 4️⃣ 运行单元测试（仅针对 middleware 包）
+      - name: Run middleware tests
+        run: |
+          go test ./internal/middleware -v -coverprofile=coverage.out
+
+      # 5️⃣ 输出覆盖率结果
+      - name: Show coverage
+        run: go tool cover -func=coverage.out
